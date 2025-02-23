@@ -1,37 +1,47 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import * as SQLite from 'expo-sqlite';
-import { useEffect } from 'react';
 
 const screenWidth = Dimensions.get('window').width;
 
 const testData = [
-  { day: '日', value: 34 },
-  { day: '月', value: 0 },
-  { day: '火', value: 26 },
-  { day: '水', value: 0 },
-  { day: '木', value: 17 },
-  { day: '金', value: 0 },
-  { day: '土', value: 0 },
+  { day: '日', nebou: 34, achievement: 60 },
+  { day: '月', nebou: 0, achievement: 45 },
+  { day: '火', nebou: 26, achievement: 90 },
+  { day: '水', nebou: 0, achievement: 60 },
+  { day: '木', nebou: 17, achievement: 30 },
+  { day: '金', nebou: 0, achievement: 100 },
+  { day: '土', nebou: 0, achievement: 70 },
 ];
 
 const MyPageScreen = () => {
   const [data, setData] = useState(testData);
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  const average = (total / data.length).toFixed(0);
+  const [isSleepData, setIsSleepData] = useState(true);
 
-  //コメントの追加
+  //平均の計算
+  const total = data.reduce((sum, item) => sum + (isSleepData ? item.nebou : item.achievement), 0);
+  const average = data.length ? (total / data.length).toFixed(0) : 0;
+
+  // コメントの作成
   const getComment = (avg) => {
-    if (avg <= 10) return '素晴らしい';
-    if (avg > 10 && avg < 20) return 'いいね！！';
-    return '頑張ろう・・・';
+    if (isSleepData) {
+      // 寝坊度の場合のコメント基準
+      if (avg <= 10) return '素晴らしい';
+      if (avg > 10 && avg < 20) return 'いいね！！';
+      return '頑張ろう・・・';
+    } else {
+      // 達成度の場合のコメント基準
+      if (avg >= 80) return '素晴らしい達成率！';
+      if (avg >= 50) return 'いい調子！';
+      return 'もっと頑張ろう！';
+    }
   };
 
   const comment = getComment(average);
 
-  //最大値の設定（y軸）
-  const maxValue = Math.max(...data.map((item) => item.value));
+  //グラフの軸の設定
+  const maxValue = Math.max(...data.map((item) => (isSleepData ? item.nebou : item.achievement)), 0);
   let yAxisInterval = 10;
   let yAxisMax = Math.ceil(maxValue / yAxisInterval) * yAxisInterval;
   let segments = yAxisMax / yAxisInterval;
@@ -46,23 +56,32 @@ const MyPageScreen = () => {
     labels: data.map((item) => item.day),
     datasets: [
       {
-        data: data.map((item) => item.value),
+        data: data.map((item) => (isSleepData ? item.nebou : item.achievement)),
       },
     ],
   };
 
+  const toggleChart = () => {
+    setIsSleepData(!isSleepData);
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.header}>寝坊度</Text>
+      <Text style={styles.header}>{isSleepData ? '寝坊度' : '達成度'}</Text>
+      <TouchableOpacity style={styles.toggleButton} onPress={toggleChart}>
+        <Text style={styles.toggleButtonText}>
+          {isSleepData ? '達成度に切り替え' : '寝坊度に切り替え'}
+        </Text>
+      </TouchableOpacity>
       <View style={styles.chartContainer}>
         <Text style={styles.periodText}>02/16~02/22</Text>
+        {/* グラフの表示 */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {/* グラフの作成 */}
           <BarChart
             data={chartData}
             width={screenWidth - 80}
             height={180}
-            yAxisSuffix="分"
+            yAxisSuffix={isSleepData ? '分' : '%'}
             yAxisInterval={yAxisInterval}
             fromZero
             withVerticalLabels={true}
@@ -84,10 +103,13 @@ const MyPageScreen = () => {
           />
         </ScrollView>
       </View>
-      {/* 平均の表示とコメント */}
+      {/* 平均とコメント */}
       <View style={styles.averageContainer}>
         <Text style={styles.averageLabel}>今週の平均</Text>
-        <Text style={styles.averageValue}>{average}分</Text>
+        <Text style={styles.averageValue}>
+          {average}
+          {isSleepData ? '分' : '%'}
+        </Text>
       </View>
       <View style={styles.speechBubbleContainer}>
         <View style={styles.speechBubbleTail} />
@@ -102,6 +124,15 @@ const MyPageScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginVertical: 16 },
+  toggleButton: {
+    backgroundColor: '#ff9999',
+    padding: 10,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 10,
+  },
+  toggleButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   chartContainer: {
     backgroundColor: '#ffe6e6',
     borderRadius: 16,
@@ -121,7 +152,7 @@ const styles = StyleSheet.create({
   },
   speechBubbleContainer: {
     alignItems: 'center',
-    marginTop: -20,
+    marginTop: -30,
     position: 'relative',
   },
   speechBubble: {
@@ -144,7 +175,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -10,
   },
-
   averageLabel: { fontSize: 18, marginBottom: 10 },
   averageValue: { fontSize: 36, fontWeight: 'bold' },
   speechText: { fontSize: 18, textAlign: 'center', color: '#ff3333' },
