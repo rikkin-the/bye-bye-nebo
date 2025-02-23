@@ -21,7 +21,7 @@ export default function App() {
   );
 }
 
-
+//データの追加
 // import { StatusBar } from 'expo-status-bar';
 // import { StyleSheet, Text, View } from 'react-native';
 // import * as SQLite from 'expo-sqlite';
@@ -31,13 +31,12 @@ export default function App() {
 //   useEffect(() => {
 //     async function insertData() {
 //       try {
+//         // データベースのオープン
 //         const db = await SQLite.openDatabaseAsync('hayaoki.db');
 
-
-//         // アラーム用データのテーブルを作成
+//         // テーブル作成
 //         await db.execAsync(`
 //           PRAGMA journal_mode = WAL;
-
 
 //           -- アラーム用データのテーブルを作成
 //           CREATE TABLE IF NOT EXISTS alarm_data (
@@ -48,7 +47,6 @@ export default function App() {
 //             time_difference TEXT NOT NULL
 //           );
 
-
 //           -- Todoリスト用データのテーブルを作成
 //           CREATE TABLE IF NOT EXISTS todo_list (
 //             id INTEGER PRIMARY KEY NOT NULL,
@@ -56,42 +54,36 @@ export default function App() {
 //             completed BOOLEAN NOT NULL
 //           );
 
-
 //           -- 進捗データ用テーブルを作成
 //           CREATE TABLE IF NOT EXISTS progress (
 //             id INTEGER PRIMARY KEY NOT NULL,
 //             date TEXT NOT NULL,
 //             achievement INTEGER NOT NULL
 //           );
-
-
-//           -- アラーム用データの挿入
-//           INSERT INTO alarm_data (wake_up_time, actual_wake_up_time, activity_start_time, time_difference)
-//           VALUES
-//           ('2025/02/22 06:00:00', '2025/02/22 06:05:00', '2025/02/22 06:15:00', '15分');
-
-
-//           -- Todoリスト用データの挿入
-//           INSERT INTO todo_list (task, completed)
-//           VALUES
-//           ('散歩に行く', false);
-
-
-//           -- 進捗用データの挿入
-//           INSERT INTO progress (date, achievement)
-//           VALUES
-//           ('2024/01/22', 40);
 //         `);
 
+//         // ランダムな正の整数（1～100）を生成
+//         const randomTimeDiff1 = Math.floor(Math.random() * 100) + 1;
+//         const randomTimeDiff2 = Math.floor(Math.random() * 100) + 1;
+//         const randomTimeDiff3 = Math.floor(Math.random() * 100) + 1;
 
-//         // データの取得（アラームデータ、Todoデータ、進捗データ）
+//         await db.execAsync(`
+//           INSERT INTO progress (date, achievement)
+//           VALUES
+//           ('2025/02/18', ${randomTimeDiff1}),
+//           ('2025/02/19', ${randomTimeDiff2}),
+//           ('2025/02/20', ${randomTimeDiff3}),
+//           ('2025/02/21', ${randomTimeDiff1}),
+//           ('2025/02/22', ${randomTimeDiff2}),
+//           ('2025/02/23', ${randomTimeDiff3});
+//         `);
+
+//         // 挿入したデータの取得とログ出力
 //         const alarmRows = await db.getAllAsync('SELECT * FROM alarm_data');
 //         console.log('アラーム用テーブルのデータ：', alarmRows);
 
-
 //         const todoRows = await db.getAllAsync('SELECT * FROM todo_list');
 //         console.log('TODOリスト用テーブルのデータ:', todoRows);
-
 
 //         const progressRows = await db.getAllAsync('SELECT * FROM progress');
 //         console.log('進捗用テーブルのデータ：', progressRows);
@@ -103,11 +95,11 @@ export default function App() {
 //     insertData();
 //   }, []);
 
-
 //   return (
 //     <View style={styles.container}>
 //       <Text>Open up App.js to start working on your app!</Text>
 //       <StatusBar style="auto" />
+//       <Text>Welcome to Hayaoki!</Text>
 //     </View>
 //   );
 // }
