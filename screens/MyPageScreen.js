@@ -21,6 +21,7 @@ const MyPageScreen = () => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const average = (total / data.length).toFixed(0);
 
+  //コメントの追加
   const getComment = (avg) => {
     if (avg <= 10) return '素晴らしい';
     if (avg > 10 && avg < 20) return 'いいね！！';
@@ -29,6 +30,7 @@ const MyPageScreen = () => {
 
   const comment = getComment(average);
 
+  //最大値の設定（y軸）
   const maxValue = Math.max(...data.map((item) => item.value));
   let yAxisInterval = 10;
   let yAxisMax = Math.ceil(maxValue / yAxisInterval) * yAxisInterval;
@@ -55,6 +57,7 @@ const MyPageScreen = () => {
       <View style={styles.chartContainer}>
         <Text style={styles.periodText}>02/16~02/22</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {/* グラフの作成 */}
           <BarChart
             data={chartData}
             width={screenWidth - 80}
@@ -81,6 +84,7 @@ const MyPageScreen = () => {
           />
         </ScrollView>
       </View>
+      {/* 平均の表示とコメント */}
       <View style={styles.averageContainer}>
         <Text style={styles.averageLabel}>今週の平均</Text>
         <Text style={styles.averageValue}>{average}分</Text>
