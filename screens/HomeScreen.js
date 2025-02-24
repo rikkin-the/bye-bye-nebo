@@ -29,7 +29,7 @@ export default function HomeScreen({ navigation }) {
       {/* 下半分 - ボタン */}
       <View style={styles.bottomSection}>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.button_alarm}
           onPress={() => navigation.navigate("AlarmSetting")}
         >
           <Text style={styles.buttonText}>起床時間登録</Text>
@@ -38,7 +38,7 @@ export default function HomeScreen({ navigation }) {
         <View style={{ height: 30 }} /> {/* ボタン間のスペース */}
 
         <TouchableOpacity
-          style={styles.button}
+          style={styles.button_mypage}
           onPress={() => navigation.navigate("MyPage")}
         >
           <Text style={styles.buttonText}>マイページ</Text>
@@ -52,12 +52,14 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFD1DC",
+    // backgroundColor: "white",
+    backgroundimage:"../assets/sun.jpg",
     justifyContent: "space-between", // 上半分と下半分に分ける
     paddingVertical: 60,
   },
   topSection: {
-    alignItems: "center",
+    marginTop:20,
+    alignItems: "center"
   },
   appTitle: {
     fontSize: 36,
@@ -71,12 +73,20 @@ const styles = StyleSheet.create({
   bottomSection: {
     alignItems: "center",
   },
-  button: {
-    backgroundColor: "#FF6347", // 緑色のボタン
+  button_alarm: {
+    backgroundColor: "#FF6347", // ボタンの色を赤
     paddingVertical: 55, // ボタンの高さを増やす
     paddingHorizontal: 40, // 横幅を広げる
     borderRadius: 10,
-    width: 250, // ボタンの幅を大きく
+    width:  '70%', // ボタンの幅を大きく
+    alignItems: "center",
+  },
+  button_mypage: {
+    backgroundColor: "#FF9494", // ボタンの色を赤
+    paddingVertical: 20, // ボタンの高さを増やす
+    paddingHorizontal: 40, // 横幅を広げる
+    borderRadius: 10,
+    width: '70%', // ボタンの幅を大きく
     alignItems: "center",
   },
   buttonText: {
