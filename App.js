@@ -8,6 +8,7 @@ import AlarmSettingScreen from "./screens/AlarmSettingScreen";
 import MyPageScreen from "./screens/MyPageScreen";
 import AlarmPage1 from "./screens/AlarmPage1";
 import AlarmPage2 from "./screens/AlarmPage2";
+import MorningRoutine from "./screens/MorningRoutine";
 
 const Stack = createStackNavigator();
 
@@ -16,9 +17,10 @@ export default function App() {
     async function insertData() {
       try {
         const db = await SQLite.openDatabaseAsync('hayaoki.db');
+      
         await db.runAsync('DELETE FROM alarm_data');
-        await db.runAsync('DELETE FROM todo_list');
         await db.runAsync('DELETE FROM progress');
+       
         
         // テーブルを作成
         await db.execAsync(`
@@ -33,13 +35,6 @@ export default function App() {
             time_difference TEXT NOT NULL
           );
 
-          -- Todoリスト用データのテーブルを作成
-          CREATE TABLE IF NOT EXISTS todo_list (
-            id INTEGER PRIMARY KEY NOT NULL,
-            task TEXT NOT NULL,
-            completed BOOLEAN NOT NULL
-          );
-
           -- 進捗データ用テーブルを作成
           CREATE TABLE IF NOT EXISTS progress (
             id INTEGER PRIMARY KEY NOT NULL,
@@ -52,11 +47,6 @@ export default function App() {
           VALUES 
           ('2025/02/22 06:00:00', '2025/02/22 06:05:00', '2025/02/22 06:15:00', '15');
 
-          -- Todoリスト用データの挿入
-          INSERT INTO todo_list (task, completed) 
-          VALUES 
-          ('散歩に行く', false);
-
           -- 進捗用データの挿入
           INSERT INTO progress (date, achievement) 
           VALUES 
@@ -66,10 +56,10 @@ export default function App() {
         // データの取得（アラームデータ、Todoデータ、進捗データ）
         const alarmRows = await db.getAllAsync('SELECT * FROM alarm_data');
         console.log('アラーム用テーブルのデータ（初回）：', alarmRows);
-
+/*
         const todoRows = await db.getAllAsync('SELECT * FROM todo_list');
         console.log('TODOリスト用テーブルのデータ（初回）:', todoRows);
-
+*/
         const progressRows = await db.getAllAsync('SELECT * FROM progress');
         console.log('進捗用テーブルのデータ（初回）：', progressRows);
 
@@ -92,6 +82,7 @@ export default function App() {
         <Stack.Screen name="AlarmSetting" component={AlarmSettingScreen} />
         <Stack.Screen name="AlarmPage1" component={AlarmPage1} />
         <Stack.Screen name="AlarmPage2" component={AlarmPage2} />
+        <Stack.Screen name="MorningRoutine" component={MorningRoutine} />
         <Stack.Screen name="MyPage" component={MyPageScreen} />
       </Stack.Navigator>
     </NavigationContainer>

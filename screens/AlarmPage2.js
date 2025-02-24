@@ -44,7 +44,7 @@ export default function AlarmPage2({navigation, route}) {
       "活動開始しますか？",
       [
         { text: "キャンセル", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("MyPage") },
+        { text: "OK", onPress: () => navigation.navigate("MorningRoutine") },
       ]
     )
   };

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity, Alert } from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import { CheckBox } from 'react-native-elements'
 import * as SQLite from 'expo-sqlite';
@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SwipeListView } from 'react-native-swipe-list-view';
 
 
-export default function MorningRoutine() {
+export default function MorningRoutine({ navigation, route }) {
   const [text, setText] = useState('');
   const [items, setItems] = useState([]);
 
@@ -52,7 +52,7 @@ export default function MorningRoutine() {
       listForSave.push(items[i].task);
     }
     const achievement = 100*(achievedNum/taskNum);
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
 
     const saveList = async () => {
       try {
@@ -66,7 +66,8 @@ export default function MorningRoutine() {
 
     const saveAchievement = async () => {
       try {
-        const db = await SQLite.openDatabaseAsync('example.db'); //ファイル名検討
+        const db = await SQLite.openDatabaseAsync('hayaoki.db'); //ファイル名検討
+        /*
         await db.execAsync(`
           PRAGMA jounal_mode = WAL;
 
@@ -76,16 +77,27 @@ export default function MorningRoutine() {
             achievement INTEGER 
           );    
         `)
-        await db.runAsync('INSERT INTO progress (date, achievement) values (?, ?)', today, Math.floor(achievement));
+        */
+
+        await db.runAsync('INSERT INTO progress (date, achievement) values (?, ?)', `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`, Math.floor(achievement));
       } catch(error) {
         console.log('データ挿入のエラー', error);
       }
     }
 
-    alert(`${Math.floor(achievement)}%タスク達成で朝活を終えます。よろしいですか？`);
-    saveList();
-    saveAchievement();
-    
+
+    Alert.alert(
+          "確認",
+          `達成率は${Math.floor(achievement)}%です。朝活を終了しますか？`,
+          [
+            { text: "キャンセル", style: "cancel" },
+            { text: "OK", onPress: () => {
+              saveList();
+              saveAchievement();
+              navigation.navigate("MyPage");
+            }},
+          ]
+        )
   }
 
   useEffect(() => {
@@ -160,7 +172,7 @@ export default function MorningRoutine() {
             </View>
           </View>
           <View style={[styles.row, {flex: 2, padding: 24}]}>
-            <Button title='朝活を終える' onPress={() => {saveRecord()} }/>
+            <Button title="朝活を終える" onPress={() => {saveRecord()} }/>
           </View>
         </View>
       </SafeAreaView>
