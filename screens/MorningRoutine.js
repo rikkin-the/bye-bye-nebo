@@ -71,12 +71,10 @@ export default function MorningRoutine({ navigation, route }) {
       try {
         const db = await SQLite.openDatabaseAsync('hayaoki.db'); //ファイル名検討
         await db.runAsync('INSERT INTO progress (date, achievement) values (?, ?)', `${year}/${month}/${date}`, Math.floor(achievement));
-        const a = await db.getAllAsync('SELECT * FROM progress');
       } catch(error) {
         console.log('データ挿入のエラー', error);
       }
     }
-
 
     Alert.alert(
           "確認",
