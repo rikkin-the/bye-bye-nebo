@@ -1,10 +1,43 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import * as SQLite from 'expo-sqlite';
+import { Audio } from 'expo-av';
 
 export default function AlarmPage2({navigation, route}) {
   const alarmTime = new Date(route.params.alarmTime);
   const wakeUpTime = new Date(route.params.wakeUpTime);
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date()); 
+
+  const playSound = async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/bell2.mp3') // 音楽ファイルのパスを指定
+        );
+        setSound(sound);
+        await sound.playAsync();
+      } catch (error) {
+        console.error('音楽の再生エラー:', error);
+      }
+    };
+  
+    // 毎秒CurrentTimeを設定
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentTime(new Date()); // 1秒ごとに現在時刻を更新
+      }, 3000);
+      return () => clearInterval(interval); // クリーンアップ
+    }, []);
+  
+    useEffect(() => {
+      const checkTime = () => {
+        if (currentTime >= alarmTime && !isPlaying) {
+          playSound();
+        }
+      };
+      checkTime();
+    }, [currentTime]);
 
   const handleStart = () => {
     const startTime = new Date();
@@ -14,7 +47,7 @@ export default function AlarmPage2({navigation, route}) {
         const db = await SQLite.openDatabaseAsync('hayaoki.db', { useNewConnection: true });
 
         const timeDifferenceMillis = startTime.getTime() - wakeUpTime.getTime();
-        const timeDifferenceMinutes = Math.floor(timeDifferenceMillis / 1000);
+        const timeDifferenceMinutes = Math.floor(timeDifferenceMillis / 1000 / 60);
 
         const alarmTimeString = alarmTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
         const wakeUpTimeString = wakeUpTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
@@ -44,13 +77,18 @@ export default function AlarmPage2({navigation, route}) {
       "活動開始しますか？",
       [
         { text: "キャンセル", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("MorningRoutine") },
+        { text: "OK", onPress: () => {
+          setIsPlaying(true);
+          navigation.navigate("MorningRoutine");
+        }
+        },
       ]
     )
   };
 
   return (
     <View style={styles.container}>
+
       {/* 起床予定時刻のボックス */}
       <View style={styles.alarmBox}>
         <Text style={styles.alarmText}>起床予定時刻</Text>
@@ -66,6 +104,7 @@ export default function AlarmPage2({navigation, route}) {
       <TouchableOpacity style={styles.startButton} onPress={handleStart}>
         <Text style={styles.startButtonText}>活動開始</Text>
       </TouchableOpacity>
+
     </View>
   );
 }
@@ -140,5 +179,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-

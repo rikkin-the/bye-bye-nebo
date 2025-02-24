@@ -2,59 +2,88 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-export default function AlarmSettingScreen({navigation}) {
+export default function AlarmSettingScreen({ navigation, route }) {
+  const [alarmTime, setAlarmTime] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() + 1);
-  currentDate.setHours(6, 0, 0, 0);
-  const [alarmTime, setAlarmTime] = useState(currentDate);
-  const [showPicker, setShowPicker] = useState(false);
 
-  // 時刻選択時の処理
-  const onChange = (event, selectedDate) => {
-    if (selectedDate) {
-      setAlarmTime(selectedDate);
-    }
-    setShowPicker(false); // ピッカーを閉じる
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || alarmTime;
+    setShowDatePicker(false);
+    setAlarmTime(currentDate); // 日付の選択を更新
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || alarmTime;
+    setShowTimePicker(false);
+    setAlarmTime(currentTime); // 時間の選択を更新
   };
 
   //就寝ボタンを押したときの処理
-  const handleSleepPress = () => {
-    Alert.alert(
-      "確認",
-      "就寝しますか？",
-      [
-        { text: "キャンセル", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("AlarmPage1", { alarmTime: alarmTime.toISOString() }) },
-      ]
-    )
-  };
+    const handleSleepPress = () => {
+      Alert.alert(
+        "確認",
+        "就寝しますか？",
+        [
+          { text: "キャンセル", style: "cancel" },
+          { text: "OK", onPress: () => navigation.navigate("AlarmPage1", { alarmTime: alarmTime.toISOString() }) },
+        ]
+      )
+    };
 
   return (
     <View style={styles.container}>
+
       {/* 起床予定時刻のボックス */}
       <View style={styles.alarmBox}>
-        <Text style={styles.alarmText}>起床予定時刻</Text>
+        <Text style={styles.alarmText}>選択した日時：</Text>
         <Text style={styles.alarmTime}>{alarmTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</Text>
-        <TouchableOpacity style={styles.editButton} onPress={() => setShowPicker(true)}>
-          <Text style={styles.editButtonText}>修正</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* 時刻選択ピッカー */}
-      {showPicker && (
+      {/* 日付の選択ボタン */}
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => setShowDatePicker(true)} // 日付を選択するためのボタン
+      >
+        <Text style={styles.buttonText}>日付を選択</Text>
+      </TouchableOpacity>
+
+      {/* 時間の選択ボタン */}
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => setShowTimePicker(true)} // 時間を選択するためのボタン
+      >
+        <Text style={styles.buttonText}>時間を選択</Text>
+      </TouchableOpacity>
+
+      {/* 日付ピッカー */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={alarmTime}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+          minimumDate={currentDate}
+        />
+      )}
+
+      {/* 時間ピッカー */}
+      {showTimePicker && (
         <DateTimePicker
           value={alarmTime}
           mode="time"
-          is24Hour={true}
-          display="spinner"
-          onChange={onChange}
+          display="default"
+          onChange={handleTimeChange}
+          minimumDate={currentDate}
         />
       )}
 
       {/* 就寝ボタン */}
-      <TouchableOpacity style={styles.sleepButton} onPress={handleSleepPress}>
-        <Text style={styles.sleepButtonText}>就寝</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSleepPress}>
+        <Text style={styles.buttonText}>就寝</Text>
       </TouchableOpacity>
+
     </View>
   );
 }
@@ -85,23 +114,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
-  alarmTime: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 5,
-  },
-  editButton: {
-    backgroundColor: "#A9A9A9",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-    marginTop: 5,
-  },
-  editButtonText: {
-    color: "#000",
-    fontSize: 14,
-  },
-  sleepButton: {
+  button: {
     backgroundColor: "#6495ED",
     width: 150,
     height: 150,
@@ -115,11 +128,23 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  sleepButtonText: {
+  buttonText: {
     color: "white",
     fontSize: 20,
     fontWeight: "bold",
   },
+  editButton: {
+    backgroundColor: "#6495ED",
+    width: 150,
+    height: 50,
+    borderRadius: 60, // 円形にする
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
 });
-
-

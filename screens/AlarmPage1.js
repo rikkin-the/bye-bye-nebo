@@ -1,8 +1,41 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { Audio } from 'expo-av';
 
 export default function AlarmPage1({ navigation, route }) {
   const alarmTime = new Date(route.params.alarmTime);
+  const [sound, setSound] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date()); 
+
+  const playSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/bell.mp3') // 音楽ファイルのパスを指定
+      );
+      setSound(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.error('音楽の再生エラー:', error);
+    }
+  };
+
+  // 毎秒CurrentTimeを設定
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date()); // 1秒ごとに現在時刻を更新
+    }, 5000);
+    return () => clearInterval(interval); // クリーンアップ
+  }, []);
+
+  useEffect(() => {
+    const checkTime = () => {
+      if (currentTime >= alarmTime && !isPlaying) {
+        playSound();
+      }
+    };
+    checkTime();
+  }, [currentTime]);
 
   const handleWakeUpPress = () => {
     const wakeUpTime = new Date();
@@ -11,13 +44,18 @@ export default function AlarmPage1({ navigation, route }) {
       "起床しますか？",
       [
         { text: "キャンセル", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("AlarmPage2", { alarmTime: alarmTime.toISOString(), wakeUpTime: wakeUpTime.toISOString() }) },
+        { text: "OK", onPress: () => {
+          setIsPlaying(true);
+          navigation.navigate("AlarmPage2", { alarmTime: alarmTime.toISOString(), wakeUpTime: wakeUpTime.toISOString() });
+        },
+        }
       ]
     )
   };
 
   return (
     <View style={styles.container}>
+      
       {/* 起床予定時刻のボックス */}
       <View style={styles.alarmBox}>
         <Text style={styles.alarmText}>起床予定時刻</Text>
@@ -69,7 +107,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   wakeUpButton: {
-    backgroundColor: "#FFFF00",
+    backgroundColor: "#FF0000",
     width: 150,
     height: 150,
     borderRadius: 60, // 円形にする

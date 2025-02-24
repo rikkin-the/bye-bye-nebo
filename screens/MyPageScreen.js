@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Button } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import * as SQLite from 'expo-sqlite';
 
@@ -25,7 +25,7 @@ function getAchievementComment(avg) {
   return 'もっと頑張ろう！';
 }
 
-export default function MyPageScreen() {
+export default function MyPageScreen({navigation}) {
   const [alarmData, setAlarmData] = useState([]);     // 寝坊度用データ（alarm_data）
   const [progressData, setProgressData] = useState([]); // 達成度用データ（progress）
   const [isSleepData, setIsSleepData] = useState(true); // true: 寝坊度, false: 達成度
@@ -181,6 +181,8 @@ export default function MyPageScreen() {
           <Text style={styles.speechText}>{comment}</Text>
         </View>
       </View>
+
+      <Button title="ホームに戻る" onPress={() => navigation.navigate("Home")} />
     </ScrollView>
   );
 }
