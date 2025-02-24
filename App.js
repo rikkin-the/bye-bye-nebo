@@ -50,7 +50,7 @@ export default function App() {
           -- 進捗用データの挿入
           INSERT INTO progress (date, achievement) 
           VALUES 
-          ('2024/01/22', 40);
+          ('2025/02/22', 40);
         `);
 
         // データの取得（アラームデータ、Todoデータ、進捗データ）

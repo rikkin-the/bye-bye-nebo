@@ -53,6 +53,9 @@ export default function MorningRoutine({ navigation, route }) {
     }
     const achievement = 100*(achievedNum/taskNum);
     const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const date = String(today.getDate()).padStart(2, '0');
 
     const saveList = async () => {
       try {
@@ -67,19 +70,8 @@ export default function MorningRoutine({ navigation, route }) {
     const saveAchievement = async () => {
       try {
         const db = await SQLite.openDatabaseAsync('hayaoki.db'); //ファイル名検討
-        /*
-        await db.execAsync(`
-          PRAGMA jounal_mode = WAL;
-
-          CREATE TABLE IF NOT EXISTS progress (
-            id INTEGER PRIMARY KEY NOT NULL,
-            date TEXT NOT NULL,
-            achievement INTEGER 
-          );    
-        `)
-        */
-
-        await db.runAsync('INSERT INTO progress (date, achievement) values (?, ?)', `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`, Math.floor(achievement));
+        await db.runAsync('INSERT INTO progress (date, achievement) values (?, ?)', `${year}/${month}/${date}`, Math.floor(achievement));
+        const a = await db.getAllAsync('SELECT * FROM progress');
       } catch(error) {
         console.log('データ挿入のエラー', error);
       }
