@@ -1,17 +1,50 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import * as SQLite from 'expo-sqlite';
 
-export default function AlarmPage1({ navigation, route }) {
+export default function AlarmPage2({navigation, route}) {
   const alarmTime = new Date(route.params.alarmTime);
+  const wakeUpTime = new Date(route.params.wakeUpTime);
 
-  const handleWakeUpPress = () => {
-    const wakeUpTime = new Date();
+  const handleStart = () => {
+    const startTime = new Date();
+
+    async function insertData() {
+      try {
+        const db = await SQLite.openDatabaseAsync('hayaoki.db', { useNewConnection: true });
+
+        const timeDifferenceMillis = startTime.getTime() - wakeUpTime.getTime();
+        const timeDifferenceMinutes = Math.floor(timeDifferenceMillis / 1000);
+
+        const alarmTimeString = alarmTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+        const wakeUpTimeString = wakeUpTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+        const startTimeString = startTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+
+        await db.execAsync(`
+          PRAGMA journal_mode = WAL;
+          INSERT INTO alarm_data (wake_up_time, actual_wake_up_time, activity_start_time, time_difference) 
+          VALUES 
+          ("${alarmTimeString}", "${wakeUpTimeString}", "${startTimeString}", "${timeDifferenceMinutes}");
+        `);
+
+        const rows = await db.getAllAsync('SELECT * FROM alarm_data');
+
+        if (db) {
+          await db.closeAsync();
+        }
+        console.log('🌟rows', rows);
+      } catch (error) {
+        console.log('エラーですよ（アラームページ２）:', error);
+      }
+    }
+    insertData();
+
     Alert.alert(
       "確認",
-      "起床しますか？",
+      "活動開始しますか？",
       [
         { text: "キャンセル", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("AlarmPage2", { alarmTime: alarmTime.toISOString(), wakeUpTime: wakeUpTime.toISOString() }) },
+        { text: "OK", onPress: () => navigation.navigate("MyPage") },
       ]
     )
   };
@@ -25,12 +58,12 @@ export default function AlarmPage1({ navigation, route }) {
       </View>
 
       {/* 起床ボタン */}
-      <TouchableOpacity style={styles.wakeUpButton} onPress={handleWakeUpPress}>
+      <TouchableOpacity style={styles.wakeUpButton}>
         <Text style={styles.wakeUpButtonText}>起床</Text>
       </TouchableOpacity>
 
       {/* 活動開始ボタン */}
-      <TouchableOpacity style={styles.startButton}>
+      <TouchableOpacity style={styles.startButton} onPress={handleStart}>
         <Text style={styles.startButtonText}>活動開始</Text>
       </TouchableOpacity>
     </View>
@@ -69,7 +102,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   wakeUpButton: {
-    backgroundColor: "#FFFF00",
+    backgroundColor: "#D3D3D3",
     width: 150,
     height: 150,
     borderRadius: 60, // 円形にする
@@ -83,7 +116,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   startButton: {
-    backgroundColor: "#D3D3D3",
+    backgroundColor: "#FF0000",
     width: 150,
     height: 150,
     borderRadius: 60, // 円形にする
@@ -107,3 +140,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+

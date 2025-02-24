@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Button, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 export default function HomeScreen({ navigation }) {
   const [currentTime, setCurrentTime] = useState(""); //currentTimeが変数で、setCurrentTimeが変数を更新する関数（紐づいている）

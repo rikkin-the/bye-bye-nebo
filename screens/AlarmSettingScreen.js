@@ -3,7 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function AlarmSettingScreen({navigation}) {
-  const [alarmTime, setAlarmTime] = useState(new Date()); // デフォルトは現在時刻
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + 1);
+  currentDate.setHours(6, 0, 0, 0);
+  const [alarmTime, setAlarmTime] = useState(currentDate);
   const [showPicker, setShowPicker] = useState(false);
 
   // 時刻選択時の処理
@@ -21,7 +24,7 @@ export default function AlarmSettingScreen({navigation}) {
       "就寝しますか？",
       [
         { text: "キャンセル", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("AlarmPage1") },
+        { text: "OK", onPress: () => navigation.navigate("AlarmPage1", { alarmTime: alarmTime.toISOString() }) },
       ]
     )
   };
@@ -31,7 +34,7 @@ export default function AlarmSettingScreen({navigation}) {
       {/* 起床予定時刻のボックス */}
       <View style={styles.alarmBox}>
         <Text style={styles.alarmText}>起床予定時刻</Text>
-        <Text style={styles.alarmTime}>{alarmTime.getHours()}:{alarmTime.getMinutes().toString().padStart(2, "0")}</Text>
+        <Text style={styles.alarmTime}>{alarmTime.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</Text>
         <TouchableOpacity style={styles.editButton} onPress={() => setShowPicker(true)}>
           <Text style={styles.editButtonText}>修正</Text>
         </TouchableOpacity>
